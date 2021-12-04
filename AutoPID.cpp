@@ -9,7 +9,9 @@ AutoPID::AutoPID(double *input, double *setpoint, double *output, double outputM
   _outputMax = outputMax;
   setGains(Kp, Ki, Kd);
   _timeStep = 1000;
+  _reverse=false;
 }//AutoPID::AutoPID
+
 
 void AutoPID::setGains(double Kp, double Ki, double Kd) {
   _Kp = Kp;
@@ -56,10 +58,15 @@ void AutoPID::run() {
     unsigned long _dT = millis() - _lastStep;   //calculate time since last update
     if (_dT >= _timeStep) {                     //if long enough, do PID calculations
       _lastStep = millis();
-      double _error = *_setpoint - *_input;
-      _integral += (_error + _previousError) / 2 * _dT / 1000.0;   //Riemann sum integral
+              if (_reverse==true) {
+                          _error =  *_input - *_setpoint;
+              }
+              else{
+                          _error = *_setpoint - *_input;
+              }
+      _integral += ((_error + _previousError) / 2) * (_dT / 1000.0);   //Riemann sum integral
       //_integral = constrain(_integral, _outputMin/_Ki, _outputMax/_Ki);
-      double _dError = (_error - _previousError) / _dT / 1000.0;   //derivative
+      double _dError = (_error - _previousError) / (_dT / 1000.0);   //derivative
       _previousError = _error;
       double PID = (_Kp * _error) + (_Ki * _integral) + (_Kd * _dError);
       //*_output = _outputMin + (constrain(PID, 0, 1) * (_outputMax - _outputMin));
@@ -67,6 +74,11 @@ void AutoPID::run() {
     }
   }
 }//void AutoPID::run
+
+void AutoPID::setreverse(bool reverse){
+            _reverse=reverse;
+}
+
 
 void AutoPID::stop() {
   _stopped = true;
