@@ -30,7 +30,9 @@ class AutoPID {
 
     double getIntegral();
     void setIntegral(double integral);
-
+	
+	void setreverse(bool reverse);
+	
   private:
     double _Kp, _Ki, _Kd;
     double _integral, _previousError;
@@ -39,7 +41,8 @@ class AutoPID {
     double _outputMin, _outputMax;
     unsigned long _timeStep, _lastStep;
     bool _stopped;
-
+	bool _reverse;
+	double _error;
 };//class AutoPID
 
 class AutoPIDRelay : public AutoPID {
